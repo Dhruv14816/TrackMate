@@ -18,3 +18,4 @@ Source
 
 Existing systems studied: IRCTC (Indian Railways), Amtrak, or country's national railway booking portal - used as real-world references for features and workflow.
 Textbooks/course material: Database Management Systems (DBMS) textbooks (e.g., Elmasri & Navathe, or Silberschatz) for schema design and normalization concepts.
+
