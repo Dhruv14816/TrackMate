@@ -1,1 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Trackmate | Book Train</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+
+        .booking-page {
+            min-height: 100vh;
+
+            display: flex;
+            flex-direction: column;
+        }
+
+        .booking-container {
+            width: min(1050px, calc(100% - 30px));
+
+            margin: auto;
+
+            padding: 50px 0;
+        }
+
+        .booking-heading {
+            margin-bottom: 30px;
+        }
+
+        .booking-heading h1 {
+            font-size: 42px;
+            letter-spacing: -1.5px;
+        }
+
+        .booking-heading p {
+            margin-top: 8px;
+
+            color: #667085;
+        }
+
+        .booking-card {
+            padding: 30px;
+
+            background: white;
+
+            border-radius: 20px;
+
+            box-shadow:
+                0 20px 60px rgba(16, 24, 40, 0.10);
+        }
+
+        .form-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 20px;
+        }
+
+        .booking-field {
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 8px;
+        }
+
+        .booking-field label {
+            font-size: 13px;
+
+            font-weight: 650;
+
+            color: #344054;
+        }
+
+        .booking-field input,
+        .booking-field select {
+            height: 50px;
+
+            padding: 0 14px;
+
+            border: 1px solid #e4e7ec;
+
+            border-radius: 10px;
+
+            background: white;
+
+            outline: none;
+
+            font-size: 14px;
+        }
+
+        .booking-field input:focus,
+        .booking-field select:focus {
+            border-color: #2563eb;
+
+            box-shadow:
+                0 0 0 4px rgba(37, 99, 235, 0.10);
+        }
+
+        .search-trains {
+            width: 100%;
+
+            margin-top: 25px;
+
+            height: 52px;
+
+            border: none;
+
+            border-radius: 11px;
+
+            background: #2563eb;
+
+            color: white;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+        }
+
+        .search-trains:hover {
+            background: #1d4ed8;
+        }
+
+        .logout {
+            margin-top: 20px;
+
+            border: none;
+
+            background: transparent;
+
+            color: #667085;
+
+            cursor: pointer;
+
+            font-size: 13px;
+        }
+
+        @media (max-width: 700px) {
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .booking-heading h1 {
+                font-size: 34px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="background booking-page">
+
+    <header class="navbar">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                🚆
+            </div>
+
+            <div>
+
+                <div class="brand-name">
+                    Trackmate
+                </div>
+
+                <div class="brand-subtitle">
+                    Railways of the Land of Gods
+                </div>
+
+            </div>
+
+        </div>
+
+        <button
+            class="logout"
+            onclick="logout()"
+        >
+            Logout
+        </button>
+
+    </header>
+
+
+    <main class="booking-container">
+
+        <div class="booking-heading">
+
+            <span class="eyebrow">
+                TRAIN BOOKING
+            </span>
+
+            <h1>
+                Plan your journey
+            </h1>
+
+            <p>
+                Search for trains across Uttarakhand.
+            </p>
+
+        </div>
+
+
+        <div class="booking-card">
+
+            <form id="bookingForm">
+
+                <div class="form-grid">
+
+                    <div class="booking-field">
+
+                        <label for="source">
+                            From
+                        </label>
+
+                        <select id="source">
+
+                            <option selected>
+                                Dehradun
+                            </option>
+
+                            <option>
+                                Haridwar
+                            </option>
+
+                            <option>
+                                Rishikesh
+                            </option>
+
+                            <option>
+                                Kathgodam
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="booking-field">
+
+                        <label for="destination">
+                            To
+                        </label>
+
+                        <select id="destination">
+
+                            <option>
+                                Haridwar
+                            </option>
+
+                            <option>
+                                Dehradun
+                            </option>
+
+                            <option>
+                                Rishikesh
+                            </option>
+
+                            <option>
+                                Kathgodam
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="booking-field">
+
+                        <label for="travelDate">
+                            Journey date
+                        </label>
+
+                        <input
+                            type="date"
+                            id="travelDate"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="booking-field">
+
+                        <label for="passengers">
+                            Passengers
+                        </label>
+
+                        <select id="passengers">
+
+                            <option value="1">
+                                1 Passenger
+                            </option>
+
+                            <option value="2">
+                                2 Passengers
+                            </option>
+
+                            <option value="3">
+                                3 Passengers
+                            </option>
+
+                            <option value="4">
+                                4 Passengers
+                            </option>
+
+                            <option value="5">
+                                5 Passengers
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="search-trains"
+                >
+                    Search Trains →
+                </button>
+
+            </form>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script>
+
+    function logout() {
+
+        window.location.href = "index.html";
+
+    }
+
+
+    document
+        .getElementById("bookingForm")
+        .addEventListener("submit", function(event) {
+
+            event.preventDefault();
+
+            const source =
+                document.getElementById("source").value;
+
+            const destination =
+                document.getElementById("destination").value;
+
+            const date =
+                document.getElementById("travelDate").value;
+
+            if (source === destination) {
+
+                alert(
+                    "Source and destination cannot be the same."
+                );
+
+                return;
+
+            }
+
+            if (!date) {
+
+                alert(
+                    "Please select a journey date."
+                );
+
+                return;
+
+            }
+
+            alert(
+                "Searching trains from " +
+                source +
+                " to " +
+                destination +
+                "..."
+            );
+
+        });
+
+</script>
+
+</body>
+
+</html>
