@@ -1,21 +1,60 @@
-Team -> TrackMate - smart railway reservation platform.
+# Trackmate : Train Ticket Booking System
 
+## Project Overview
 
-Team Members
-1 - Dhruv garg - backend and frontend 
-2 - Eklavya gupta - backend and frontend 
-3 - Raghav kathait-login authentication 
+Trackmate is a web-based train ticket booking project developed as part of our college Project-Based Learning (PBL) work.
 
-Motivation
+### Current Features
 
-Manual booking is slow and error-prone. Paper-based or semi-manual ticketing leads to long queues, double bookings, and lost records.
-Growing passenger volume. Railways handle massive daily traffic; a digital system is needed to manage seat allocation, cancellations, and waitlists efficiently.
-Real-time information need. Passengers want instant access to train schedules, seat availability, and fare details without visiting a counter.
-Reduce human error. Automating seat allocation, fare calculation, and PNR generation removes mistakes common in manual processes.
- 
+- User registration and login
+- Password hashing using Argon2id
+- Session-based authentication
+- MySQL database integration
+- Passenger details and seat-preference submission
+- Ticket details displayed after successful submission
 
-Source
+**Current scope:** Authentication and database-backed ticket submission. Train search, seat allocation, and payment functionality are not yet implemented.
 
-Existing systems studied: IRCTC (Indian Railways), Amtrak, or country's national railway booking portal - used as real-world references for features and workflow.
-Textbooks/course material: Database Management Systems (DBMS) textbooks (e.g., Elmasri & Navathe, or Silberschatz) for schema design and normalization concepts.
+## Technology Stack
 
+- HTML, CSS and JavaScript
+- Node.js and Express
+- MySQL
+- mysql2
+- Argon2
+- express-session
+- express-mysql-session
+- Helmet
+- express-rate-limit
+- dotenv
+
+## Prerequisites
+
+Install Node.js, MySQL Server, MySQL Workbench, and Git.
+
+## Setup Instructions
+
+1. Clone this repository.
+2. Open MySQL Workbench and import `database/railway_reservation.sql`.
+3. Open a terminal in the `website` directory.
+4. Install the dependencies:
+
+   `npm install`
+
+5. Copy `.env.example` to `.env`.
+6. Update `.env` with your local MySQL credentials and a unique session secret.
+7. Start the server:
+
+   `node server.js`
+
+8. Open `http://localhost:3000` in your browser.
+
+## Database
+
+The `railway_reservation` database contains tables for users, trains, stations, passengers, bookings, and tickets.
+
+## Security Notes
+
+- Do not commit `.env` or real credentials.
+- Passwords are stored as hashes, not plaintext.
+- Each developer configures their own local environment.
