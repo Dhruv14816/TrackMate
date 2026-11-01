@@ -18,15 +18,11 @@ Trackmate is a web-based train ticket booking project developed as part of our c
 ## Technology Stack
 
 - HTML, CSS and JavaScript
-- Node.js and Express
+- Node.js, script.js and server.js
 - MySQL
-- mysql2
 - Argon2
-- express-session
-- express-mysql-session
+- express
 - Helmet
-- express-rate-limit
-- dotenv
 
 ## Prerequisites
 
