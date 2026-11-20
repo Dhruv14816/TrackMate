@@ -1,69 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Trackmate | Book Train</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trackmate | Railway Reservation</title>
     <link rel="stylesheet" href="style.css">
 
     <style>
-
         .booking-page {
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
 
-        .booking-container {
-            width: min(1050px, calc(100% - 30px));
+        .booking-wrap {
+            width: min(1080px, calc(100% - 30px));
             margin: auto;
-            padding: 50px 0;
+            padding: 42px 0;
         }
 
-        .booking-heading {
-            margin-bottom: 30px;
+        .booking-panel {
+            background: #fff;
+            border-radius: 18px;
+            padding: 24px;
+            margin: 18px 0;
+            box-shadow: 0 12px 40px #10182812;
         }
 
-        .booking-heading h1 {
-            font-size: 42px;
-            letter-spacing: -1.5px;
-        }
-
-        .booking-heading p {
-            margin-top: 8px;
-            color: #667085;
-        }
-
-        .booking-card {
-            padding: 30px;
-            background: white;
-            border-radius: 20px;
-
-            box-shadow:
-                0 20px 60px rgba(16, 24, 40, 0.10);
-        }
-
-        .form-grid {
+        .booking-grid {
             display: grid;
-
-            grid-template-columns:
-                repeat(2, 1fr);
-
-            gap: 20px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
         }
 
         .booking-field {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 7px;
         }
 
         .booking-field label {
@@ -74,399 +45,311 @@
 
         .booking-field input,
         .booking-field select {
-            height: 50px;
-
-            padding: 0 14px;
-
-            border: 1px solid #e4e7ec;
-
-            border-radius: 10px;
-
-            background: white;
-
-            outline: none;
-
-            font-size: 14px;
-        }
-
-        .booking-field input:focus,
-        .booking-field select:focus {
-            border-color: #2563eb;
-
-            box-shadow:
-                0 0 0 4px rgba(37, 99, 235, 0.10);
-        }
-
-        .search-trains {
             width: 100%;
+            height: 48px;
+            padding: 0 12px;
+            border: 1px solid #e4e7ec;
+            border-radius: 9px;
+            background: #fff;
+        }
 
-            margin-top: 25px;
-
-            height: 52px;
-
-            border: none;
-
-            border-radius: 11px;
-
-            background: #2563eb;
-
-            color: white;
-
-            font-size: 14px;
-
+        .booking-primary,
+        .booking-secondary,
+        .booking-danger {
+            border: 0;
+            border-radius: 9px;
+            padding: 12px 16px;
+            cursor: pointer;
             font-weight: 700;
-
-            cursor: pointer;
         }
 
-        .search-trains:hover {
-            background: #1d4ed8;
+        .booking-primary {
+            background: #2563eb;
+            color: #fff;
         }
 
-        .logout {
-            margin-top: 20px;
+        .booking-secondary {
+            background: #eef4ff;
+            color: #1d4ed8;
+        }
 
-            border: none;
+        .booking-danger {
+            background: #fff1f0;
+            color: #b42318;
+        }
 
-            background: transparent;
+        .booking-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
 
+        .booking-full {
+            width: 100%;
+            margin-top: 18px;
+        }
+
+        .booking-muted {
             color: #667085;
-
-            cursor: pointer;
-
             font-size: 13px;
         }
 
-        .ticket-result {
-            margin-top: 25px;
+        .booking-notice {
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 9px;
+        }
 
-            padding: 25px;
+        .booking-error {
+            background: #fff1f0;
+            color: #b42318;
+        }
 
-            border-radius: 15px;
+        .booking-success {
+            background: #ecfdf3;
+            color: #027a48;
+        }
 
+        .train-card,
+        .booking-card,
+        .passenger-card,
+        .list-card {
             border: 1px solid #e4e7ec;
-
-            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 12px;
         }
 
-        .ticket-result h2 {
-            margin-bottom: 20px;
-        }
-
-        .ticket-detail {
+        .booking-flex {
             display: flex;
-
             justify-content: space-between;
-
-            gap: 20px;
-
-            padding: 12px 0;
-
-            border-bottom: 1px solid #e4e7ec;
-
-            font-size: 14px;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
-        .ticket-detail:last-child {
-            border-bottom: none;
+        .booking-hidden {
+            display: none !important;
         }
 
-        .ticket-detail strong {
-            color: #344054;
+        .booking-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 15px 0;
         }
 
-        .ticket-detail span {
-            color: #667085;
-            text-align: right;
+        .booking-detail {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 9px 0;
+            border-bottom: 1px solid #eee;
         }
 
-        .ticket-message {
-            margin-top: 15px;
-
-            font-size: 14px;
-
-            text-align: center;
+        .booking-passenger-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
         }
 
-        .ticket-message.error {
-            color: #d92d20;
-        }
-
-        .ticket-message.success {
-            color: #16803c;
-        }
-
-        @media (max-width: 700px) {
-
-            .form-grid {
+        @media (max-width: 650px) {
+            .booking-grid,
+            .booking-passenger-grid {
                 grid-template-columns: 1fr;
             }
 
-            .booking-heading h1 {
-                font-size: 34px;
+            .booking-panel {
+                padding: 17px;
             }
 
-            .ticket-detail {
+            .booking-detail {
                 flex-direction: column;
-                gap: 5px;
+                gap: 4px;
             }
-
-            .ticket-detail span {
-                text-align: left;
-            }
-
         }
-
     </style>
-
 </head>
 
-
 <body>
-
 <div class="background booking-page">
 
     <header class="navbar">
-
         <div class="brand">
-
-            <div class="brand-icon">
-                🚆
-            </div>
-
+            <div class="brand-icon">🚆</div>
             <div>
-
-                <div class="brand-name">
-                    Trackmate
-                </div>
-
-                <div class="brand-subtitle">
-                    Railways of the Land of Gods
-                </div>
-
+                <div class="brand-name">Trackmate</div>
+                <div class="brand-subtitle">Railways of the Land of Gods</div>
             </div>
-
         </div>
 
-        <button
-            class="logout"
-            id="logoutButton"
-        >
-            Logout
-        </button>
-
+        <button class="logout" id="logoutButton">Logout</button>
     </header>
 
+    <main class="booking-wrap">
 
-    <main class="booking-container">
-
-        <div class="booking-heading">
-
-            <span class="eyebrow">
-                TRAIN TICKET BOOKING
-            </span>
-
-            <h1>
-                Enter passenger details
-            </h1>
-
-            <p>
-                Enter your details and choose your preferred seat.
+        <section>
+            <span class="eyebrow">TRACKMATE RAILWAYS</span>
+            <h1>Plan your journey.</h1>
+            <p class="booking-muted">
+                Search trains, reserve seats and manage your bookings.
             </p>
+            <p id="welcomeUser" class="booking-muted"></p>
+        </section>
 
-        </div>
+        <section class="booking-panel">
+            <h2>Search trains</h2>
 
-
-        <div class="booking-card">
-
-            <form id="ticketForm">
-
-                <div class="form-grid">
-
-                    <div class="booking-field">
-
-                        <label for="ticketName">
-                            Name
-                        </label>
-
-                        <input
-                            type="text"
-                            id="ticketName"
-                            placeholder="Enter your name"
-                            required
-                        >
-
-                    </div>
-
+            <form id="searchForm">
+                <div class="booking-grid">
 
                     <div class="booking-field">
-
-                        <label for="ticketAge">
-                            Age
-                        </label>
-
-                        <input
-                            type="number"
-                            id="ticketAge"
-                            min="1"
-                            max="120"
-                            placeholder="Enter your age"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="booking-field">
-
-                        <label for="ticketEmail">
-                            Email
-                        </label>
-
-                        <input
-                            type="email"
-                            id="ticketEmail"
-                            placeholder="abc@gmail.com"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="booking-field">
-
-                        <label for="ticketPreference">
-                            Seat Preference
-                        </label>
-
-                        <select
-                            id="ticketPreference"
-                            required
-                        >
-
-                            <option value="">
-                                Select preference
-                            </option>
-
-                            <option value="Upper Berth">
-                                Upper Berth
-                            </option>
-
-                            <option value="Middle Berth">
-                                Middle Berth
-                            </option>
-
-                            <option value="Lower Berth">
-                                Lower Berth
-                            </option>
-
-                            <option value="Side Upper Berth">
-                                Side Upper Berth
-                            </option>
-
-                            <option value="Side Lower Berth">
-                                Side Lower Berth
-                            </option>
-
+                        <label for="source">Boarding station</label>
+                        <select id="source" required>
+                            <option value="">Select station</option>
                         </select>
+                    </div>
 
+                    <div class="booking-field">
+                        <label for="destination">Destination</label>
+                        <select id="destination" required>
+                            <option value="">Select station</option>
+                        </select>
+                    </div>
+
+                    <div class="booking-field">
+                        <label for="journeyDate">Journey date</label>
+                        <input type="date" id="journeyDate" required>
                     </div>
 
                 </div>
 
-
-                <div
-                    id="ticketMessage"
-                    class="ticket-message"
-                ></div>
-
-
-                <button
-                    type="submit"
-                    class="search-trains"
-                >
-                    Book Ticket →
+                <button class="booking-primary booking-full" type="submit">
+                    Search trains →
                 </button>
-
             </form>
 
+            <div id="searchMessage"></div>
+            <div id="trainResults"></div>
+        </section>
 
-            <div
-                id="ticketResult"
-                class="ticket-result"
-                style="display: none;"
-            >
-
-                <h2>
-                    🎫 Ticket Confirmed
-                </h2>
-
-
-                <div class="ticket-detail">
-
-                    <strong>
-                        Ticket ID
-                    </strong>
-
-                    <span id="resultTicketId"></span>
-
-                </div>
-
-
-                <div class="ticket-detail">
-
-                    <strong>
-                        Name
-                    </strong>
-
-                    <span id="resultName"></span>
-
-                </div>
-
-
-                <div class="ticket-detail">
-
-                    <strong>
-                        Age
-                    </strong>
-
-                    <span id="resultAge"></span>
-
-                </div>
-
-
-                <div class="ticket-detail">
-
-                    <strong>
-                        Email
-                    </strong>
-
-                    <span id="resultEmail"></span>
-
-                </div>
-
-
-                <div class="ticket-detail">
-
-                    <strong>
-                        Seat Preference
-                    </strong>
-
-                    <span id="resultPreference"></span>
-
-                </div>
-
+        <section id="passengerPanel" class="booking-panel booking-hidden">
+            <div class="booking-flex">
+                <h2>Passenger details</h2>
+                <span id="selectedTrainLabel" class="booking-muted"></span>
             </div>
 
-        </div>
+            <p class="booking-muted">
+                Maximum 6 passengers. Demo fare ₹500 per passenger.
+            </p>
+
+            <form id="bookingForm">
+
+                <div class="booking-field" style="max-width:250px;margin:12px 0">
+                    <label for="passengerCount">Number of passengers</label>
+                    <select id="passengerCount">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                </div>
+
+                <div id="passengerFields"></div>
+
+                <div class="booking-field" style="max-width:300px;margin-top:12px">
+                    <label for="paymentMethod">Payment method (simulation)</label>
+                    <select id="paymentMethod" required>
+                        <option value="">Select method</option>
+                        <option value="UPI">UPI</option>
+                        <option value="Card">Card</option>
+                        <option value="Net Banking">Net Banking</option>
+                    </select>
+                </div>
+
+                <p id="farePreview" class="booking-muted">
+                    Total ₹500
+                </p>
+
+                <button class="booking-primary booking-full" type="submit">
+                    Confirm booking →
+                </button>
+            </form>
+
+            <div id="bookingMessage"></div>
+        </section>
+
+        <section id="ticketPanel" class="booking-panel booking-hidden">
+            <h2>🎫 Booking confirmation</h2>
+            <div id="ticketDetails"></div>
+        </section>
+
+        <section class="booking-panel">
+
+            <div class="booking-flex">
+                <h2>Manage bookings</h2>
+                <button id="refreshAll" class="booking-secondary" type="button">
+                    Refresh
+                </button>
+            </div>
+
+            <div class="booking-tabs">
+                <button class="booking-secondary" type="button" data-tab="myBookings">
+                    My bookings
+                </button>
+
+                <button class="booking-secondary" type="button" data-tab="waitingList">
+                    Waiting list
+                </button>
+
+                <button class="booking-secondary" type="button" data-tab="cancellations">
+                    Cancellation history
+                </button>
+
+                <button class="booking-secondary" type="button" data-tab="coachLookup">
+                    Coach positions
+                </button>
+            </div>
+
+            <div id="myBookings" class="booking-tab-content">
+                <div id="bookingsList" class="booking-muted"></div>
+            </div>
+
+            <div id="waitingList" class="booking-tab-content booking-hidden">
+                <div id="waitingListContent"></div>
+            </div>
+
+            <div id="cancellations" class="booking-tab-content booking-hidden">
+                <div id="cancellationsContent"></div>
+            </div>
+
+            <div id="coachLookup" class="booking-tab-content booking-hidden">
+
+                <div class="booking-field" style="max-width:300px">
+                    <label for="coachTrain">Train</label>
+                    <select id="coachTrain">
+                        <option value="">Search a route first to load trains</option>
+                    </select>
+                </div>
+
+                <button
+                    id="showCoaches"
+                    class="booking-secondary"
+                    type="button"
+                    style="margin-top:10px"
+                >
+                    Show coaches
+                </button>
+
+                <div id="coachResult"></div>
+            </div>
+
+        </section>
 
     </main>
-
 </div>
 
-
 <script src="script.js"></script>
-
 </body>
-
 </html>
