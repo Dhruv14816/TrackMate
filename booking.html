@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Trackmate | Railway Reservation</title>
+
     <link rel="stylesheet" href="style.css">
 
     <style>
-        .booking-page {
-            min-height: 100vh;
-        }
+        .booking-page { min-height: 100vh; }
 
         .booking-wrap {
             width: min(1080px, calc(100% - 30px));
@@ -25,7 +25,8 @@
             box-shadow: 0 12px 40px #10182812;
         }
 
-        .booking-grid {
+        .booking-grid,
+        .booking-passenger-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 15px;
@@ -146,10 +147,30 @@
             border-bottom: 1px solid #eee;
         }
 
-        .booking-passenger-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 15px;
+        .payment-qr {
+            display: block;
+            width: 280px;
+            max-width: 100%;
+            margin: 18px auto;
+            border-radius: 12px;
+        }
+
+        .payment-box {
+            text-align: center;
+            padding: 20px;
+            border: 1px solid #e4e7ec;
+            border-radius: 14px;
+            margin-top: 18px;
+        }
+
+        .payment-box input {
+            width: 100%;
+            max-width: 420px;
+            height: 48px;
+            padding: 0 12px;
+            border: 1px solid #e4e7ec;
+            border-radius: 9px;
+            margin-top: 8px;
         }
 
         @media (max-width: 650px) {
@@ -171,30 +192,41 @@
 </head>
 
 <body>
+
 <div class="background booking-page">
 
     <header class="navbar">
         <div class="brand">
             <div class="brand-icon">🚆</div>
+
             <div>
                 <div class="brand-name">Trackmate</div>
-                <div class="brand-subtitle">Railways of the Land of Gods</div>
+                <div class="brand-subtitle">
+                    Railways of the Land of Gods
+                </div>
             </div>
         </div>
 
-        <button class="logout" id="logoutButton">Logout</button>
+        <button class="logout" id="logoutButton">
+            Logout
+        </button>
     </header>
+
 
     <main class="booking-wrap">
 
         <section>
             <span class="eyebrow">TRACKMATE RAILWAYS</span>
+
             <h1>Plan your journey.</h1>
+
             <p class="booking-muted">
                 Search trains, reserve seats and manage your bookings.
             </p>
+
             <p id="welcomeUser" class="booking-muted"></p>
         </section>
+
 
         <!-- TRAIN SEARCH -->
 
@@ -202,10 +234,12 @@
             <h2>Search trains</h2>
 
             <form id="searchForm">
+
                 <div class="booking-grid">
 
                     <div class="booking-field">
                         <label for="source">Boarding station</label>
+
                         <select id="source" required>
                             <option value="">Select station</option>
                         </select>
@@ -213,6 +247,7 @@
 
                     <div class="booking-field">
                         <label for="destination">Destination</label>
+
                         <select id="destination" required>
                             <option value="">Select station</option>
                         </select>
@@ -220,37 +255,60 @@
 
                     <div class="booking-field">
                         <label for="journeyDate">Journey date</label>
-                        <input type="date" id="journeyDate" required>
+
+                        <input
+                            type="date"
+                            id="journeyDate"
+                            required
+                        >
                     </div>
 
                 </div>
 
-                <button class="booking-primary booking-full" type="submit">
+                <button
+                    class="booking-primary booking-full"
+                    type="submit"
+                >
                     Search trains →
                 </button>
+
             </form>
 
             <div id="searchMessage"></div>
             <div id="trainResults"></div>
         </section>
 
-        <!-- PASSENGER DETAILS AND PAYMENT -->
 
-        <section id="passengerPanel" class="booking-panel booking-hidden">
+        <!-- PASSENGER DETAILS -->
+
+        <section
+            id="passengerPanel"
+            class="booking-panel booking-hidden"
+        >
 
             <div class="booking-flex">
                 <h2>Passenger details</h2>
-                <span id="selectedTrainLabel" class="booking-muted"></span>
+
+                <span
+                    id="selectedTrainLabel"
+                    class="booking-muted"
+                ></span>
             </div>
 
             <p class="booking-muted">
-                Maximum 6 passengers. Demo fare ₹500 per passenger.
+                Maximum 6 passengers. Fare ₹500 per passenger.
+                No extra charges.
             </p>
 
             <form id="bookingForm">
 
-                <div class="booking-field" style="max-width:250px;margin:12px 0">
-                    <label for="passengerCount">Number of passengers</label>
+                <div
+                    class="booking-field"
+                    style="max-width:250px;margin:12px 0"
+                >
+                    <label for="passengerCount">
+                        Number of passengers
+                    </label>
 
                     <select id="passengerCount">
                         <option value="1">1</option>
@@ -264,12 +322,12 @@
 
                 <div id="passengerFields"></div>
 
-                <!-- PAYMENT METHOD -->
-
-                <div class="booking-field" style="max-width:300px;margin-top:12px">
-
+                <div
+                    class="booking-field"
+                    style="max-width:300px;margin-top:12px"
+                >
                     <label for="paymentMethod">
-                        Payment method (simulated)
+                        Payment method
                     </label>
 
                     <select id="paymentMethod" required>
@@ -278,47 +336,130 @@
                         <option value="Card">Debit/Credit Card</option>
                         <option value="Net Banking">Net Banking</option>
                     </select>
-
                 </div>
-
-                <!-- FARE CALCULATION -->
 
                 <p id="farePreview" class="booking-muted">
                     Total ₹500
                 </p>
 
-                <button class="booking-primary booking-full" type="submit">
-                    Confirm booking →
+                <button
+                    class="booking-primary booking-full"
+                    type="submit"
+                >
+                    Proceed to payment →
                 </button>
 
             </form>
 
             <div id="bookingMessage"></div>
-
         </section>
 
-        <!-- GENERATED TICKET -->
 
-        <section id="ticketPanel" class="booking-panel booking-hidden">
+        <!-- PAYMENT -->
 
+        <section
+            id="paymentPanel"
+            class="booking-panel booking-hidden"
+        >
+
+            <h2>Complete your payment</h2>
+
+            <p class="booking-muted">
+                Your booking is confirmed only after payment verification.
+            </p>
+
+            <div class="payment-box">
+
+                <h2 id="paymentTotal">Total amount: ₹500</h2>
+
+                <p
+                    id="paymentPassengerCount"
+                    class="booking-muted"
+                ></p>
+
+                <div id="upiPayment">
+
+                    <h3>Scan to pay using any UPI app</h3>
+
+                    <img
+                        class="payment-qr"
+                        src="/upi-qr.png"
+                        alt="Trackmate UPI QR Code"
+                    >
+
+                    <p>
+                        <strong>UPI ID:</strong>
+                        dhruvgarg8038@oksbi
+                    </p>
+
+                    <div class="booking-field" style="margin-top:20px">
+
+                        <label for="paymentReference">
+                            UPI transaction reference / UTR
+                        </label>
+
+                        <input
+                            type="text"
+                            id="paymentReference"
+                            placeholder="Enter your UPI transaction reference"
+                        >
+
+                    </div>
+
+                    <button
+                        type="button"
+                        id="submitPaymentReference"
+                        class="booking-primary booking-full"
+                    >
+                        Submit payment reference
+                    </button>
+
+                </div>
+
+                <div
+                    id="gatewayMessage"
+                    class="booking-hidden"
+                >
+                    <p>
+                        Card and Net Banking require a payment gateway.
+                    </p>
+
+                    <p class="booking-muted">
+                        Select UPI to use the QR payment option.
+                    </p>
+                </div>
+
+                <div id="paymentMessage"></div>
+
+            </div>
+        </section>
+
+
+        <!-- TICKET -->
+
+        <section
+            id="ticketPanel"
+            class="booking-panel booking-hidden"
+        >
             <h2>🎫 Booking confirmation</h2>
-
             <div id="ticketDetails"></div>
-
         </section>
 
-        <!-- BOOKING MANAGEMENT -->
+
+        <!-- MANAGE BOOKINGS -->
 
         <section class="booking-panel">
 
             <div class="booking-flex">
-
                 <h2>Manage bookings</h2>
 
-                <button id="refreshAll" class="booking-secondary" type="button">
+                <button
+                    id="refreshAll"
+                    class="booking-secondary"
+                    type="button"
+                >
                     Refresh
                 </button>
-
             </div>
 
             <div class="booking-tabs">
@@ -357,42 +498,41 @@
 
             </div>
 
-            <!-- MY BOOKINGS -->
 
             <div id="myBookings" class="booking-tab-content">
-
                 <div id="bookingsList" class="booking-muted"></div>
-
             </div>
 
-            <!-- WAITING LIST -->
-
-            <div id="waitingList" class="booking-tab-content booking-hidden">
-
+            <div
+                id="waitingList"
+                class="booking-tab-content booking-hidden"
+            >
                 <div id="waitingListContent"></div>
-
             </div>
 
-            <!-- CANCELLATION HISTORY -->
-
-            <div id="cancellations" class="booking-tab-content booking-hidden">
-
+            <div
+                id="cancellations"
+                class="booking-tab-content booking-hidden"
+            >
                 <div id="cancellationsContent"></div>
-
             </div>
 
-            <!-- COACH POSITIONS -->
+            <div
+                id="coachLookup"
+                class="booking-tab-content booking-hidden"
+            >
 
-            <div id="coachLookup" class="booking-tab-content booking-hidden">
-
-                <div class="booking-field" style="max-width:300px">
-
+                <div
+                    class="booking-field"
+                    style="max-width:300px"
+                >
                     <label for="coachTrain">Train</label>
 
                     <select id="coachTrain">
-                        <option value="">Search a route first to load trains</option>
+                        <option value="">
+                            Search a route first to load trains
+                        </option>
                     </select>
-
                 </div>
 
                 <button
@@ -411,7 +551,6 @@
         </section>
 
     </main>
-
 </div>
 
 <script src="script.js"></script>
