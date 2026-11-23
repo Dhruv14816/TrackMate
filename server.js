@@ -100,15 +100,21 @@ const normalizeEmail = email =>
 const validEmail = email =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
+// FIXED DATE VALIDATION
+// Avoids timezone conversion changing the selected date.
 function validDate(date) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || ""))) {
         return false;
     }
 
-    const parsed = new Date(`${date}T00:00:00`);
+    const [year, month, day] = date.split("-").map(Number);
+    const parsed = new Date(Date.UTC(year, month - 1, day));
 
-    return !Number.isNaN(parsed.getTime()) &&
-        parsed.toISOString().slice(0, 10) === date;
+    return (
+        parsed.getUTCFullYear() === year &&
+        parsed.getUTCMonth() === month - 1 &&
+        parsed.getUTCDate() === day
+    );
 }
 
 function loggedIn(req, res, next) {
@@ -120,7 +126,6 @@ function loggedIn(req, res, next) {
 
     next();
 }
-
 
 /* =====================================================
    REGISTER
@@ -186,7 +191,6 @@ app.post("/api/register", registerLimit, wrap(async (req, res) => {
     }
 }));
 
-
 /* =====================================================
    LOGIN
 ===================================================== */
@@ -229,7 +233,6 @@ app.post("/api/login", loginLimit, wrap(async (req, res) => {
     res.json({ success: true });
 }));
 
-
 /* =====================================================
    CURRENT USER
 ===================================================== */
@@ -254,7 +257,6 @@ app.get("/api/me", loggedIn, wrap(async (req, res) => {
     });
 }));
 
-
 /* =====================================================
    LOGOUT
 ===================================================== */
@@ -268,11 +270,9 @@ app.post("/api/logout", (req, res) => {
         }
 
         res.clearCookie("trackmate_session");
-
         res.json({ success: true });
     });
 });
-
 
 /* =====================================================
    STATIONS
@@ -288,10 +288,9 @@ app.get("/api/stations", wrap(async (req, res) => {
     res.json({ stations });
 }));
 
-
 /* =====================================================
    SEARCH TRAINS
-   IMPORTANT: Your database uses station_order.
+   Database column: station_order
 ===================================================== */
 
 app.get("/api/trains", wrap(async (req, res) => {
@@ -340,7 +339,6 @@ app.get("/api/trains", wrap(async (req, res) => {
     res.json({ trains });
 }));
 
-
 /* =====================================================
    COACH POSITIONS
 ===================================================== */
@@ -381,11 +379,8 @@ app.get("/api/trains/:id/coaches", wrap(async (req, res) => {
     });
 }));
 
-
 /* =====================================================
    CREATE BOOKING
-   Uses your existing bookings and passengers tables.
-   passengers.gender is required in your database.
 ===================================================== */
 
 app.post("/api/bookings", loggedIn, wrap(async (req, res) => {
@@ -512,11 +507,6 @@ app.post("/api/bookings", loggedIn, wrap(async (req, res) => {
 
         const fare = people.length * farePerPassenger;
 
-        /*
-          passenger_id is NULL for new bookings.
-          Your database migration made it nullable.
-        */
-
         const [booking] = await connection.execute(`
             INSERT INTO bookings (
                 user_id,
@@ -592,7 +582,6 @@ app.post("/api/bookings", loggedIn, wrap(async (req, res) => {
     }
 }));
 
-
 /* =====================================================
    SUBMIT UPI PAYMENT REFERENCE
    This does NOT automatically confirm payment.
@@ -660,10 +649,8 @@ app.post(
     })
 );
 
-
 /* =====================================================
    ADMIN PAYMENT VERIFICATION
-   Check actual received payment before using this route.
 ===================================================== */
 
 app.post(
@@ -754,7 +741,6 @@ app.post(
     })
 );
 
-
 /* =====================================================
    MY BOOKINGS
 ===================================================== */
@@ -795,7 +781,6 @@ app.get("/api/bookings", loggedIn, wrap(async (req, res) => {
 
     res.json({ bookings });
 }));
-
 
 /* =====================================================
    CANCEL BOOKING
@@ -875,7 +860,6 @@ app.post(
     })
 );
 
-
 /* =====================================================
    WAITING LIST
 ===================================================== */
@@ -906,10 +890,8 @@ app.get("/api/waiting-list", loggedIn, wrap(async (req, res) => {
     });
 }));
 
-
 /* =====================================================
    CANCELLATION HISTORY
-   Your column is cancellation_id, not history_id.
 ===================================================== */
 
 app.get("/api/cancellations", loggedIn, wrap(async (req, res) => {
@@ -930,7 +912,6 @@ app.get("/api/cancellations", loggedIn, wrap(async (req, res) => {
     res.json({ cancellations: rows });
 }));
 
-
 /* =====================================================
    SERVE FRONTEND
 ===================================================== */
@@ -940,7 +921,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "index.html"));
 });
-
 
 /* =====================================================
    ERROR HANDLER
@@ -955,7 +935,6 @@ app.use((error, req, res, next) => {
         });
     }
 });
-
 
 /* =====================================================
    START SERVER
