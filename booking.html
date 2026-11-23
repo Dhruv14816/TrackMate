@@ -196,6 +196,8 @@
             <p id="welcomeUser" class="booking-muted"></p>
         </section>
 
+        <!-- TRAIN SEARCH -->
+
         <section class="booking-panel">
             <h2>Search trains</h2>
 
@@ -232,7 +234,10 @@
             <div id="trainResults"></div>
         </section>
 
+        <!-- PASSENGER DETAILS AND PAYMENT -->
+
         <section id="passengerPanel" class="booking-panel booking-hidden">
+
             <div class="booking-flex">
                 <h2>Passenger details</h2>
                 <span id="selectedTrainLabel" class="booking-muted"></span>
@@ -246,6 +251,7 @@
 
                 <div class="booking-field" style="max-width:250px;margin:12px 0">
                     <label for="passengerCount">Number of passengers</label>
+
                     <select id="passengerCount">
                         <option value="1">1</option>
                         <option value="2">2</option>
@@ -258,15 +264,24 @@
 
                 <div id="passengerFields"></div>
 
+                <!-- PAYMENT METHOD -->
+
                 <div class="booking-field" style="max-width:300px;margin-top:12px">
-                    <label for="paymentMethod">Payment method (simulation)</label>
+
+                    <label for="paymentMethod">
+                        Payment method (simulated)
+                    </label>
+
                     <select id="paymentMethod" required>
                         <option value="">Select method</option>
                         <option value="UPI">UPI</option>
-                        <option value="Card">Card</option>
+                        <option value="Card">Debit/Credit Card</option>
                         <option value="Net Banking">Net Banking</option>
                     </select>
+
                 </div>
+
+                <!-- FARE CALCULATION -->
 
                 <p id="farePreview" class="booking-muted">
                     Total ₹500
@@ -275,62 +290,109 @@
                 <button class="booking-primary booking-full" type="submit">
                     Confirm booking →
                 </button>
+
             </form>
 
             <div id="bookingMessage"></div>
+
         </section>
 
+        <!-- GENERATED TICKET -->
+
         <section id="ticketPanel" class="booking-panel booking-hidden">
+
             <h2>🎫 Booking confirmation</h2>
+
             <div id="ticketDetails"></div>
+
         </section>
+
+        <!-- BOOKING MANAGEMENT -->
 
         <section class="booking-panel">
 
             <div class="booking-flex">
+
                 <h2>Manage bookings</h2>
+
                 <button id="refreshAll" class="booking-secondary" type="button">
                     Refresh
                 </button>
+
             </div>
 
             <div class="booking-tabs">
-                <button class="booking-secondary" type="button" data-tab="myBookings">
+
+                <button
+                    class="booking-secondary"
+                    type="button"
+                    data-tab="myBookings"
+                >
                     My bookings
                 </button>
 
-                <button class="booking-secondary" type="button" data-tab="waitingList">
+                <button
+                    class="booking-secondary"
+                    type="button"
+                    data-tab="waitingList"
+                >
                     Waiting list
                 </button>
 
-                <button class="booking-secondary" type="button" data-tab="cancellations">
+                <button
+                    class="booking-secondary"
+                    type="button"
+                    data-tab="cancellations"
+                >
                     Cancellation history
                 </button>
 
-                <button class="booking-secondary" type="button" data-tab="coachLookup">
+                <button
+                    class="booking-secondary"
+                    type="button"
+                    data-tab="coachLookup"
+                >
                     Coach positions
                 </button>
+
             </div>
+
+            <!-- MY BOOKINGS -->
 
             <div id="myBookings" class="booking-tab-content">
+
                 <div id="bookingsList" class="booking-muted"></div>
+
             </div>
+
+            <!-- WAITING LIST -->
 
             <div id="waitingList" class="booking-tab-content booking-hidden">
+
                 <div id="waitingListContent"></div>
+
             </div>
 
+            <!-- CANCELLATION HISTORY -->
+
             <div id="cancellations" class="booking-tab-content booking-hidden">
+
                 <div id="cancellationsContent"></div>
+
             </div>
+
+            <!-- COACH POSITIONS -->
 
             <div id="coachLookup" class="booking-tab-content booking-hidden">
 
                 <div class="booking-field" style="max-width:300px">
+
                     <label for="coachTrain">Train</label>
+
                     <select id="coachTrain">
                         <option value="">Search a route first to load trains</option>
                     </select>
+
                 </div>
 
                 <button
@@ -343,13 +405,16 @@
                 </button>
 
                 <div id="coachResult"></div>
+
             </div>
 
         </section>
 
     </main>
+
 </div>
 
 <script src="script.js"></script>
+
 </body>
 </html>
