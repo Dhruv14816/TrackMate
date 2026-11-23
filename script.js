@@ -2,6 +2,20 @@ const $ = id => document.getElementById(id);
 
 let selectedTrain = null;
 let selectedJourney = null;
+let currentBooking = null;
+
+const FARE_PER_PASSENGER = 500;
+
+const PREFERENCES = [
+    "Upper Berth",
+    "Middle Berth",
+    "Lower Berth",
+    "Side Upper Berth",
+    "Side Lower Berth"
+];
+
+
+/* API */
 
 async function api(url, options = {}) {
     const response = await fetch(url, {
@@ -9,15 +23,20 @@ async function api(url, options = {}) {
         ...options,
         headers: {
             ...(options.headers || {}),
-            ...(options.body ? { "Content-Type": "application/json" } : {})
+            ...(options.body
+                ? { "Content-Type": "application/json" }
+                : {})
         }
     });
 
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-        if (response.status === 401 && !url.includes("/api/login") &&
-            !url.includes("/api/register")) {
+        if (
+            response.status === 401 &&
+            !url.includes("/api/login") &&
+            !url.includes("/api/register")
+        ) {
             window.location.href = "/";
         }
 
@@ -26,6 +45,9 @@ async function api(url, options = {}) {
 
     return data;
 }
+
+
+/* MESSAGES */
 
 function showMessage(element, message, type = "error") {
     if (!element) return;
@@ -39,6 +61,9 @@ function showMessage(element, message, type = "error") {
     element.appendChild(paragraph);
 }
 
+
+/* OPTIONS */
+
 function addOption(select, value, label) {
     const option = document.createElement("option");
     option.value = value;
@@ -46,11 +71,20 @@ function addOption(select, value, label) {
     select.appendChild(option);
 }
 
+
+/* DATE */
+
 function getLocalDate() {
     const now = new Date();
-    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+    const local = new Date(
+        now.getTime() - now.getTimezoneOffset() * 60000
+    );
+
     return local.toISOString().slice(0, 10);
 }
+
+
+/* INITIALIZE BOOKING PAGE */
 
 async function initializeBookingPage() {
     if (!$("searchForm")) return;
@@ -64,8 +98,17 @@ async function initializeBookingPage() {
         const data = await api("/api/stations");
 
         for (const station of data.stations) {
-            addOption($("source"), station.station_name, station.station_name);
-            addOption($("destination"), station.station_name, station.station_name);
+            addOption(
+                $("source"),
+                station.station_name,
+                station.station_name
+            );
+
+            addOption(
+                $("destination"),
+                station.station_name,
+                station.station_name
+            );
         }
 
         const today = getLocalDate();
@@ -74,10 +117,14 @@ async function initializeBookingPage() {
         $("journeyDate").value = today;
 
         await refreshAllData();
+
     } catch (error) {
         showMessage($("searchMessage"), error.message);
     }
 }
+
+
+/* CREATE INPUT */
 
 function createInput(id, label, type, placeholder) {
     const wrapper = document.createElement("div");
@@ -98,12 +145,21 @@ function createInput(id, label, type, placeholder) {
     return { wrapper, input };
 }
 
+
+/* SEARCH TRAINS */
+
 async function searchTrains(event) {
     event.preventDefault();
 
     $("trainResults").replaceChildren();
     $("searchMessage").replaceChildren();
+
     $("passengerPanel").classList.add("booking-hidden");
+    $("paymentPanel").classList.add("booking-hidden");
+
+    selectedTrain = null;
+    selectedJourney = null;
+    currentBooking = null;
 
     const source = $("source").value;
     const destination = $("destination").value;
@@ -111,11 +167,13 @@ async function searchTrains(event) {
 
     try {
         const data = await api(
-            `/api/trains?source=${encodeURIComponent(source)}&destination=${encodeURIComponent(destination)}&date=${encodeURIComponent(date)}`
+            `/api/trains?source=${encodeURIComponent(source)}` +
+            `&destination=${encodeURIComponent(destination)}` +
+            `&date=${encodeURIComponent(date)}`
         );
 
-        $("coachTrain").innerHTML =
-            '<option value="">Select a train</option>';
+        $("coachTrain").replaceChildren();
+        addOption($("coachTrain"), "", "Select a train");
 
         if (data.trains.length === 0) {
             showMessage(
@@ -136,7 +194,8 @@ async function searchTrains(event) {
             const details = document.createElement("p");
             details.className = "booking-muted";
             details.textContent =
-                `${train.available_seats} seats available · ${source} → ${destination} · ${date}`;
+                `${train.available_seats} seats available · ` +
+                `${source} → ${destination} · ${date}`;
 
             const button = document.createElement("button");
             button.type = "button";
@@ -157,10 +216,14 @@ async function searchTrains(event) {
                 `${train.train_number} - ${train.train_name}`
             );
         }
+
     } catch (error) {
         showMessage($("searchMessage"), error.message);
     }
 }
+
+
+/* SELECT TRAIN */
 
 function selectTrain(train, source, destination, date) {
     selectedTrain = train;
@@ -175,6 +238,7 @@ function selectTrain(train, source, destination, date) {
         `${train.train_number} · ${train.train_name}`;
 
     $("passengerPanel").classList.remove("booking-hidden");
+    $("paymentPanel").classList.add("booking-hidden");
 
     buildPassengerFields();
 
@@ -182,6 +246,9 @@ function selectTrain(train, source, destination, date) {
         behavior: "smooth"
     });
 }
+
+
+/* BUILD PASSENGER FIELDS */
 
 function buildPassengerFields() {
     const count = Number($("passengerCount").value);
@@ -216,6 +283,24 @@ function buildPassengerFields() {
         age.input.min = "1";
         age.input.max = "120";
 
+        const genderWrapper = document.createElement("div");
+        genderWrapper.className = "booking-field";
+
+        const genderLabel = document.createElement("label");
+        genderLabel.htmlFor = `passengerGender${i}`;
+        genderLabel.textContent = "Gender";
+
+        const gender = document.createElement("select");
+        gender.id = `passengerGender${i}`;
+        gender.required = true;
+
+        addOption(gender, "", "Select gender");
+        addOption(gender, "Male", "Male");
+        addOption(gender, "Female", "Female");
+        addOption(gender, "Other", "Other");
+
+        genderWrapper.append(genderLabel, gender);
+
         const preferenceWrapper = document.createElement("div");
         preferenceWrapper.className = "booking-field";
 
@@ -229,15 +314,7 @@ function buildPassengerFields() {
 
         addOption(preference, "", "Choose preference");
 
-        const preferences = [
-            "Upper Berth",
-            "Middle Berth",
-            "Lower Berth",
-            "Side Upper Berth",
-            "Side Lower Berth"
-        ];
-
-        for (const item of preferences) {
+        for (const item of PREFERENCES) {
             addOption(preference, item, item);
         }
 
@@ -246,6 +323,7 @@ function buildPassengerFields() {
         grid.append(
             name.wrapper,
             age.wrapper,
+            genderWrapper,
             preferenceWrapper
         );
 
@@ -254,12 +332,31 @@ function buildPassengerFields() {
     }
 
     $("farePreview").textContent =
-        `Total ₹${count * 500} (₹500 per passenger, no extra charges)`;
+        `Total ₹${count * FARE_PER_PASSENGER} ` +
+        `(₹500 per passenger, no extra charges)`;
 }
 
-/* --------------------------------------------------
-   PAYMENT AND BOOKING PROCESS
-   -------------------------------------------------- */
+
+/* COLLECT PASSENGERS */
+
+function collectPassengers() {
+    const count = Number($("passengerCount").value);
+    const passengers = [];
+
+    for (let i = 0; i < count; i++) {
+        passengers.push({
+            name: $(`passengerName${i}`).value.trim(),
+            age: Number($(`passengerAge${i}`).value),
+            gender: $(`passengerGender${i}`).value,
+            preference: $(`passengerPreference${i}`).value
+        });
+    }
+
+    return passengers;
+}
+
+
+/* CREATE BOOKING */
 
 async function submitBooking(event) {
     event.preventDefault();
@@ -274,61 +371,60 @@ async function submitBooking(event) {
 
     const count = Number($("passengerCount").value);
     const paymentMethod = $("paymentMethod").value;
-
-    // Fare calculation: ₹500 per passenger.
-    const ticketFare = count * 500;
-
-    // Website charges are zero.
-    const websiteCharges = 0;
-
-    const totalFare = ticketFare + websiteCharges;
+    const passengers = collectPassengers();
 
     if (!["UPI", "Card", "Net Banking"].includes(paymentMethod)) {
         showMessage(
             $("bookingMessage"),
-            "Please select a valid payment method."
+            "Select a payment method."
         );
         return;
     }
 
-    /*
-       PAYMENT CONFIRMATION
+    for (const person of passengers) {
+        if (
+            person.name.length < 2 ||
+            !Number.isInteger(person.age) ||
+            person.age < 1 ||
+            person.age > 120 ||
+            !["Male", "Female", "Other"].includes(person.gender) ||
+            !PREFERENCES.includes(person.preference)
+        ) {
+            showMessage(
+                $("bookingMessage"),
+                "Complete all passenger details correctly."
+            );
+            return;
+        }
+    }
 
-       This confirmation appears before the booking request
-       is sent to the backend.
-
-       If the user selects Cancel, no booking is created.
-    */
-
-    const confirmation = window.confirm(
-        `TRACKMATE PAYMENT CONFIRMATION\n\n` +
-        `Payment method: ${paymentMethod === "Card" ? "Debit/Credit Card" : paymentMethod}\n\n` +
-        `Ticket fare: ₹${ticketFare}\n` +
-        `Extra website charges: ₹${websiteCharges}\n` +
-        `--------------------------------\n` +
-        `TOTAL AMOUNT: ₹${totalFare}\n\n` +
-        `Do you want to confirm the payment and complete your booking?`
-    );
-
-    if (!confirmation) {
+    if (paymentMethod !== "UPI") {
         showMessage(
             $("bookingMessage"),
-            "Payment cancelled. Your booking has not been created.",
-            "error"
+            "Card and Net Banking require a payment gateway. Please select UPI for QR payment."
         );
         return;
     }
 
-    // Collect passenger details only after payment confirmation.
-    const passengers = [];
+    const total = count * FARE_PER_PASSENGER;
 
-    for (let i = 0; i < count; i++) {
-        passengers.push({
-            name: $(`passengerName${i}`).value.trim(),
-            age: Number($(`passengerAge${i}`).value),
-            preference: $(`passengerPreference${i}`).value
-        });
-    }
+    const confirmed = window.confirm(
+        `BOOKING SUMMARY\n\n` +
+        `Train: ${selectedTrain.train_name}\n` +
+        `Passengers: ${count}\n` +
+        `Fare: ₹${total}\n` +
+        `Extra charges: ₹0\n` +
+        `Total: ₹${total}\n\n` +
+        `Continue to payment?`
+    );
+
+    if (!confirmed) return;
+
+    const button = $("bookingForm").querySelector(
+        'button[type="submit"]'
+    );
+
+    button.disabled = true;
 
     try {
         const result = await api("/api/bookings", {
@@ -354,26 +450,108 @@ async function submitBooking(event) {
             return;
         }
 
-        displayTicket(result.booking);
+        currentBooking = result.booking;
 
-        showMessage(
-            $("bookingMessage"),
-            "Your booking has been confirmed!",
-            "success"
-        );
+        showPaymentPanel(result.booking);
 
-        $("passengerPanel").classList.add("booking-hidden");
+        $("bookingMessage").replaceChildren();
 
         await refreshAllData();
 
     } catch (error) {
         showMessage($("bookingMessage"), error.message);
+    } finally {
+        button.disabled = false;
     }
 }
 
-/* --------------------------------------------------
-   TICKET GENERATION AND DISPLAY
-   -------------------------------------------------- */
+
+/* PAYMENT PANEL */
+
+function showPaymentPanel(booking) {
+    currentBooking = booking;
+
+    $("paymentPanel").classList.remove("booking-hidden");
+
+    $("paymentTotal").textContent =
+        `Total amount: ₹${booking.total}`;
+
+    $("paymentPassengerCount").textContent =
+        `${booking.passengerCount} passenger(s) · ` +
+        `₹500 each · ₹0 extra charges`;
+
+    $("paymentReference").value = "";
+    $("paymentReference").disabled = false;
+
+    $("submitPaymentReference").disabled = false;
+    $("submitPaymentReference").textContent =
+        "Submit payment reference";
+
+    $("paymentMessage").replaceChildren();
+
+    $("upiPayment").classList.remove("booking-hidden");
+    $("gatewayMessage").classList.add("booking-hidden");
+
+    $("paymentPanel").scrollIntoView({
+        behavior: "smooth"
+    });
+}
+
+
+/* SUBMIT UPI REFERENCE */
+
+async function submitPaymentReference() {
+    if (!currentBooking) {
+        showMessage(
+            $("paymentMessage"),
+            "No booking selected."
+        );
+        return;
+    }
+
+    const reference = $("paymentReference").value.trim();
+
+    if (reference.length < 6 || reference.length > 100) {
+        showMessage(
+            $("paymentMessage"),
+            "Enter a valid UPI transaction reference."
+        );
+        return;
+    }
+
+    const button = $("submitPaymentReference");
+    button.disabled = true;
+
+    try {
+        const result = await api(
+            `/api/bookings/${currentBooking.pnr}/payment-proof`,
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    paymentReference: reference
+                })
+            }
+        );
+
+        showMessage(
+            $("paymentMessage"),
+            result.message,
+            "success"
+        );
+
+        $("paymentReference").disabled = true;
+        button.textContent = "Reference submitted";
+
+        await refreshAllData();
+
+    } catch (error) {
+        showMessage($("paymentMessage"), error.message);
+        button.disabled = false;
+    }
+}
+
+
+/* DISPLAY TICKET */
 
 function displayTicket(booking) {
     const container = $("ticketDetails");
@@ -381,16 +559,17 @@ function displayTicket(booking) {
 
     const details = [
         ["PNR", booking.pnr],
-        ["Train", `${booking.trainNumber} - ${booking.trainName}`],
-        ["From", booking.source],
-        ["To", booking.destination],
-        ["Journey date", booking.journeyDate],
-        ["Passengers", booking.passengerCount],
-        ["Payment method", `${booking.paymentMethod} (simulated)`],
+        ["Train", `${booking.train_number} - ${booking.train_name}`],
+        ["From", booking.source_station],
+        ["To", booking.destination_station],
+        ["Journey date", booking.journey_date],
+        ["Passengers", booking.passenger_count],
+        ["Payment method", booking.payment_method],
         ["Fare", `₹${booking.fare}`],
         ["Extra charges", "₹0"],
-        ["Total", `₹${booking.total}`],
-        ["Status", booking.status]
+        ["Total", `₹${booking.fare}`],
+        ["Payment status", booking.payment_status],
+        ["Booking status", booking.status]
     ];
 
     for (const [label, value] of details) {
@@ -410,13 +589,16 @@ function displayTicket(booking) {
     const passengerHeading = document.createElement("h3");
     passengerHeading.textContent = "Passenger information";
     passengerHeading.style.marginTop = "18px";
+
     container.appendChild(passengerHeading);
 
-    for (const passenger of booking.passengers) {
+    for (const person of booking.passengers || []) {
         const paragraph = document.createElement("p");
         paragraph.className = "booking-muted";
+
         paragraph.textContent =
-            `${passenger.name} · Age ${passenger.age} · ${passenger.preference}`;
+            `${person.name} · Age ${person.age} · ` +
+            `${person.gender} · ${person.seat_preference}`;
 
         container.appendChild(paragraph);
     }
@@ -428,9 +610,8 @@ function displayTicket(booking) {
     });
 }
 
-/* --------------------------------------------------
-   REFRESH AND MANAGE BOOKINGS
-   -------------------------------------------------- */
+
+/* REFRESH */
 
 async function refreshAllData() {
     await Promise.all([
@@ -439,6 +620,9 @@ async function refreshAllData() {
         loadCancellations()
     ]);
 }
+
+
+/* LOAD BOOKINGS */
 
 async function loadBookings() {
     const container = $("bookingsList");
@@ -459,28 +643,81 @@ async function loadBookings() {
 
             const heading = document.createElement("h3");
             heading.textContent =
-                `PNR ${booking.pnr} · ${booking.train_number} ${booking.train_name}`;
+                `PNR ${booking.pnr} · ` +
+                `${booking.train_number} ${booking.train_name}`;
 
             const details = document.createElement("p");
             details.className = "booking-muted";
+
             details.textContent =
-                `${booking.source_station} → ${booking.destination_station} · ${booking.journey_date} · ${booking.passenger_count} passenger(s) · ₹${booking.fare} · ${booking.status}`;
+                `${booking.source_station} → ${booking.destination_station} · ` +
+                `${booking.journey_date} · ` +
+                `${booking.passenger_count} passenger(s) · ` +
+                `₹${booking.fare} · ${booking.status} · ` +
+                `Payment: ${booking.payment_status}`;
 
             card.append(heading, details);
 
-            if (booking.passengers.length > 0) {
+            if (booking.passengers.length) {
                 const passengerDetails = document.createElement("p");
                 passengerDetails.className = "booking-muted";
+
                 passengerDetails.textContent =
                     "Passengers: " +
-                    booking.passengers.map(
-                        passenger => `${passenger.name} (${passenger.age})`
+                    booking.passengers.map(person =>
+                        `${person.name} (${person.age}, ${person.gender})`
                     ).join(", ");
 
                 card.appendChild(passengerDetails);
             }
 
-            if (booking.status === "CONFIRMED") {
+            if (
+                booking.status === "CONFIRMED" &&
+                booking.payment_status === "Paid"
+            ) {
+                const viewButton = document.createElement("button");
+                viewButton.type = "button";
+                viewButton.className = "booking-secondary";
+                viewButton.textContent = "View ticket";
+
+                viewButton.addEventListener("click", () => {
+                    displayTicket(booking);
+                });
+
+                card.appendChild(viewButton);
+            }
+
+            if (booking.status === "PENDING_PAYMENT") {
+                const payButton = document.createElement("button");
+                payButton.type = "button";
+                payButton.className = "booking-primary";
+                payButton.textContent = "Continue payment";
+
+                payButton.addEventListener("click", () => {
+                    showPaymentPanel({
+                        pnr: booking.pnr,
+                        total: Number(booking.fare),
+                        passengerCount: booking.passenger_count
+                    });
+
+                    if (booking.payment_reference) {
+                        $("paymentReference").value =
+                            booking.payment_reference;
+
+                        $("paymentReference").disabled = true;
+                        $("submitPaymentReference").disabled = true;
+                        $("submitPaymentReference").textContent =
+                            "Reference submitted";
+                    }
+                });
+
+                card.appendChild(payButton);
+            }
+
+            if (
+                booking.status === "CONFIRMED" ||
+                booking.status === "PENDING_PAYMENT"
+            ) {
                 const cancelButton = document.createElement("button");
                 cancelButton.type = "button";
                 cancelButton.className = "booking-danger";
@@ -501,6 +738,9 @@ async function loadBookings() {
     }
 }
 
+
+/* CANCEL BOOKING */
+
 async function cancelBooking(pnr) {
     const confirmed = window.confirm(
         `Are you sure you want to cancel PNR ${pnr}?`
@@ -511,9 +751,7 @@ async function cancelBooking(pnr) {
     try {
         const result = await api(
             `/api/bookings/${pnr}/cancel`,
-            {
-                method: "POST"
-            }
+            { method: "POST" }
         );
 
         window.alert(result.message);
@@ -525,6 +763,9 @@ async function cancelBooking(pnr) {
     }
 }
 
+
+/* WAITING LIST */
+
 async function loadWaitingList() {
     const container = $("waitingListContent");
 
@@ -533,7 +774,7 @@ async function loadWaitingList() {
 
         container.replaceChildren();
 
-        if (data.waitingList.length === 0) {
+        if (!data.waitingList.length) {
             container.textContent = "Your waiting list is empty.";
             return;
         }
@@ -543,7 +784,11 @@ async function loadWaitingList() {
             card.className = "list-card";
 
             card.textContent =
-                `WL ${item.waiting_id} · ${item.train_number} ${item.train_name} · ${item.source_station} → ${item.destination_station} · ${item.journey_date} · ${item.passenger_count} passenger(s) · ${item.status}`;
+                `WL ${item.waiting_id} · ` +
+                `${item.train_number} ${item.train_name} · ` +
+                `${item.source_station} → ${item.destination_station} · ` +
+                `${item.journey_date} · ` +
+                `${item.passenger_count} passenger(s) · ${item.status}`;
 
             container.appendChild(card);
         }
@@ -552,6 +797,9 @@ async function loadWaitingList() {
         container.textContent = error.message;
     }
 }
+
+
+/* CANCELLATION HISTORY */
 
 async function loadCancellations() {
     const container = $("cancellationsContent");
@@ -561,17 +809,19 @@ async function loadCancellations() {
 
         container.replaceChildren();
 
-        if (data.cancellations.length === 0) {
+        if (!data.cancellations.length) {
             container.textContent = "No cancellations yet.";
             return;
         }
 
-        for (const cancellation of data.cancellations) {
+        for (const item of data.cancellations) {
             const card = document.createElement("div");
             card.className = "list-card";
 
             card.textContent =
-                `PNR ${cancellation.pnr} · ${cancellation.train_number} ${cancellation.train_name} · Cancelled: ${cancellation.cancelled_at}`;
+                `PNR ${item.pnr} · ` +
+                `${item.train_number} ${item.train_name} · ` +
+                `Cancelled: ${item.cancelled_at}`;
 
             container.appendChild(card);
         }
@@ -581,9 +831,8 @@ async function loadCancellations() {
     }
 }
 
-/* --------------------------------------------------
-   COACH POSITION DISPLAY
-   -------------------------------------------------- */
+
+/* COACH POSITIONS */
 
 async function showCoaches() {
     const trainId = $("coachTrain").value;
@@ -623,9 +872,8 @@ async function showCoaches() {
     }
 }
 
-/* --------------------------------------------------
-   LOGIN AND REGISTRATION
-   -------------------------------------------------- */
+
+/* AUTHENTICATION */
 
 function initializeAuthentication() {
     const password = $("password");
@@ -707,17 +955,14 @@ function initializeAuthentication() {
     }
 }
 
-/* --------------------------------------------------
-   PAGE EVENT LISTENERS
-   -------------------------------------------------- */
+
+/* PAGE CONTROLS */
 
 function initializePageControls() {
     if ($("logoutButton")) {
         $("logoutButton").addEventListener("click", async () => {
             try {
-                await api("/api/logout", {
-                    method: "POST"
-                });
+                await api("/api/logout", { method: "POST" });
             } catch (error) {
                 console.error(error);
             }
@@ -735,7 +980,17 @@ function initializePageControls() {
     }
 
     if ($("passengerCount")) {
-        $("passengerCount").addEventListener("change", buildPassengerFields);
+        $("passengerCount").addEventListener(
+            "change",
+            buildPassengerFields
+        );
+    }
+
+    if ($("submitPaymentReference")) {
+        $("submitPaymentReference").addEventListener(
+            "click",
+            submitPaymentReference
+        );
     }
 
     if ($("showCoaches")) {
@@ -743,12 +998,17 @@ function initializePageControls() {
     }
 
     if ($("refreshAll")) {
-        $("refreshAll").addEventListener("click", refreshAllData);
+        $("refreshAll").addEventListener(
+            "click",
+            refreshAllData
+        );
     }
 
     document.querySelectorAll("[data-tab]").forEach(button => {
         button.addEventListener("click", () => {
-            document.querySelectorAll(".booking-tab-content").forEach(tab => {
+            document.querySelectorAll(
+                ".booking-tab-content"
+            ).forEach(tab => {
                 tab.classList.toggle(
                     "booking-hidden",
                     tab.id !== button.dataset.tab
@@ -757,6 +1017,26 @@ function initializePageControls() {
         });
     });
 }
+
+
+/* PAYMENT METHOD */
+
+if ($("paymentMethod")) {
+    $("paymentMethod").addEventListener("change", () => {
+        const method = $("paymentMethod").value;
+
+        if (method === "UPI") {
+            $("upiPayment")?.classList.remove("booking-hidden");
+            $("gatewayMessage")?.classList.add("booking-hidden");
+        } else {
+            $("upiPayment")?.classList.add("booking-hidden");
+            $("gatewayMessage")?.classList.remove("booking-hidden");
+        }
+    });
+}
+
+
+/* START */
 
 initializeAuthentication();
 initializePageControls();
