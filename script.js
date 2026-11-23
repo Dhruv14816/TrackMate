@@ -1,4 +1,3 @@
-
 const $ = id => document.getElementById(id);
 
 let selectedTrain = null;
@@ -258,6 +257,10 @@ function buildPassengerFields() {
         `Total ₹${count * 500} (₹500 per passenger, no extra charges)`;
 }
 
+/* --------------------------------------------------
+   PAYMENT AND BOOKING PROCESS
+   -------------------------------------------------- */
+
 async function submitBooking(event) {
     event.preventDefault();
 
@@ -270,6 +273,53 @@ async function submitBooking(event) {
     }
 
     const count = Number($("passengerCount").value);
+    const paymentMethod = $("paymentMethod").value;
+
+    // Fare calculation: ₹500 per passenger.
+    const ticketFare = count * 500;
+
+    // Website charges are zero.
+    const websiteCharges = 0;
+
+    const totalFare = ticketFare + websiteCharges;
+
+    if (!["UPI", "Card", "Net Banking"].includes(paymentMethod)) {
+        showMessage(
+            $("bookingMessage"),
+            "Please select a valid payment method."
+        );
+        return;
+    }
+
+    /*
+       PAYMENT CONFIRMATION
+
+       This confirmation appears before the booking request
+       is sent to the backend.
+
+       If the user selects Cancel, no booking is created.
+    */
+
+    const confirmation = window.confirm(
+        `TRACKMATE PAYMENT CONFIRMATION\n\n` +
+        `Payment method: ${paymentMethod === "Card" ? "Debit/Credit Card" : paymentMethod}\n\n` +
+        `Ticket fare: ₹${ticketFare}\n` +
+        `Extra website charges: ₹${websiteCharges}\n` +
+        `--------------------------------\n` +
+        `TOTAL AMOUNT: ₹${totalFare}\n\n` +
+        `Do you want to confirm the payment and complete your booking?`
+    );
+
+    if (!confirmation) {
+        showMessage(
+            $("bookingMessage"),
+            "Payment cancelled. Your booking has not been created.",
+            "error"
+        );
+        return;
+    }
+
+    // Collect passenger details only after payment confirmation.
     const passengers = [];
 
     for (let i = 0; i < count; i++) {
@@ -287,7 +337,7 @@ async function submitBooking(event) {
                 trainId: selectedTrain.train_id,
                 ...selectedJourney,
                 passengers,
-                paymentMethod: $("paymentMethod").value
+                paymentMethod
             })
         });
 
@@ -315,10 +365,15 @@ async function submitBooking(event) {
         $("passengerPanel").classList.add("booking-hidden");
 
         await refreshAllData();
+
     } catch (error) {
         showMessage($("bookingMessage"), error.message);
     }
 }
+
+/* --------------------------------------------------
+   TICKET GENERATION AND DISPLAY
+   -------------------------------------------------- */
 
 function displayTicket(booking) {
     const container = $("ticketDetails");
@@ -372,6 +427,10 @@ function displayTicket(booking) {
         behavior: "smooth"
     });
 }
+
+/* --------------------------------------------------
+   REFRESH AND MANAGE BOOKINGS
+   -------------------------------------------------- */
 
 async function refreshAllData() {
     await Promise.all([
@@ -436,6 +495,7 @@ async function loadBookings() {
 
             container.appendChild(card);
         }
+
     } catch (error) {
         container.textContent = error.message;
     }
@@ -459,6 +519,7 @@ async function cancelBooking(pnr) {
         window.alert(result.message);
 
         await refreshAllData();
+
     } catch (error) {
         window.alert(error.message);
     }
@@ -486,6 +547,7 @@ async function loadWaitingList() {
 
             container.appendChild(card);
         }
+
     } catch (error) {
         container.textContent = error.message;
     }
@@ -513,10 +575,15 @@ async function loadCancellations() {
 
             container.appendChild(card);
         }
+
     } catch (error) {
         container.textContent = error.message;
     }
 }
+
+/* --------------------------------------------------
+   COACH POSITION DISPLAY
+   -------------------------------------------------- */
 
 async function showCoaches() {
     const trainId = $("coachTrain").value;
@@ -550,10 +617,15 @@ async function showCoaches() {
 
             container.appendChild(paragraph);
         }
+
     } catch (error) {
         showMessage($("coachResult"), error.message);
     }
 }
+
+/* --------------------------------------------------
+   LOGIN AND REGISTRATION
+   -------------------------------------------------- */
 
 function initializeAuthentication() {
     const password = $("password");
@@ -565,6 +637,7 @@ function initializeAuthentication() {
 
             password.type = showing ? "text" : "password";
             passwordToggle.textContent = showing ? "🙈" : "👁";
+
             passwordToggle.setAttribute(
                 "aria-label",
                 showing ? "Hide password" : "Show password"
@@ -594,6 +667,7 @@ function initializeAuthentication() {
                 message.className = "login-message success";
 
                 window.location.href = "/booking.html";
+
             } catch (error) {
                 message.textContent = error.message;
                 message.className = "login-message error";
@@ -624,6 +698,7 @@ function initializeAuthentication() {
                 message.className = "login-message success";
 
                 window.location.href = "/booking.html";
+
             } catch (error) {
                 message.textContent = error.message;
                 message.className = "login-message error";
@@ -631,6 +706,10 @@ function initializeAuthentication() {
         });
     }
 }
+
+/* --------------------------------------------------
+   PAGE EVENT LISTENERS
+   -------------------------------------------------- */
 
 function initializePageControls() {
     if ($("logoutButton")) {
